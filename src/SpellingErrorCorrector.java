@@ -1,9 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.function.Consumer;
 
 public class SpellingErrorCorrector {
 	
@@ -13,6 +10,7 @@ public class SpellingErrorCorrector {
 	static int totalWordCount = 0;
 	
 	static List<String> output = new ArrayList<String>();
+	static List<String> outputWithSmoothing = new ArrayList<String>();
 	
 	
 	static HashMap<Character, HashMap <Character, Integer>> deletionConfusionMatrix = new HashMap<Character, HashMap <Character, Integer>>(); 
@@ -20,30 +18,30 @@ public class SpellingErrorCorrector {
 	static HashMap<Character, HashMap <Character, Integer>> replacementConfusionMatrix = new HashMap<Character, HashMap <Character, Integer>>(); 
 	static HashMap<Character, HashMap <Character, Integer>> transpositionConfusionMatrix = new HashMap<Character, HashMap <Character, Integer>>(); 
 	
-	//static int[][] deletionConfusionMatrix, insertionConfusionMatrix, replacementConfusionMatrix, transpositionConfusionMatrix;
+
 	
 	public static void main(String[] args) {
 		
-		Consumer<Entry<String, Integer> > printKeyValue = entry -> System.out.println(entry.getKey() + ": " + entry.getValue());
 		
-		FileRead.readCorpus();			
+		FileRead.readCorpus();	// to create my dictionary
+		
+		FileRead.readSpellErrors(); // to create confusion matrices
+		
+		FileRead.readInputFile(args[0]);
+		
+		FileRead.printOutput();
 		
 		
-		FileRead.readSpellErrors();
-		
-		
-		FileRead.readInputFile();	
-		
-		FileRead.readCorrectOutput();
-		
-		/*
-		for(String prediction : output) {
-			System.out.println(prediction);
-		}
+		/*  If you wan to print confusion matrices, you can uncomment this block. 
+		MatrixPrinter.printDeletionConfusionMatrix();
+		MatrixPrinter.printInsertionConfusionMatrix();
+		MatrixPrinter.printReplacementConfusionMatrix();
+		MatrixPrinter.printTranspositionConfusionMatrix();
 		*/
+				
 		
+		//FileRead.readCorrectOutput(); I used this line to see the accuracy ratio with provided correct output file.
 		
-		//wordCounts.entrySet().stream().forEach(printKeyValue);
 	}
 
 }

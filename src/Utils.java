@@ -412,4 +412,123 @@ public class Utils {
 		
 		return predictedWord;
 	}
+	static String bestPredictionWithSmoothing (String wrongWord, List<String> knownWords ) {
+		
+		String predictedWordWithSmoothing = "not found yet";
+		int maxP = 0;
+		
+		
+		for(String knownWord : knownWords) {
+			
+			EditDistance editDistance = DamerauLevenshteinAlgorithm.findTypeAndChars(knownWord, wrongWord);
+			
+			int numerator, denominator, pw, P;
+			String bigram;
+			
+			pw = SpellingErrorCorrector.wordCounts.get(knownWord) / SpellingErrorCorrector.totalWordCount;
+			
+			
+			switch(editDistance.getType()) {
+			case deletion:
+				
+				if(
+						SpellingErrorCorrector.deletionConfusionMatrix.containsKey(editDistance.getCorrectChar()) 
+						&& 
+						SpellingErrorCorrector.deletionConfusionMatrix.get(editDistance.getCorrectChar()).containsKey(editDistance.getWrongChar())
+					) {
+					numerator = SpellingErrorCorrector.deletionConfusionMatrix.get(editDistance.getCorrectChar()).get(editDistance.getWrongChar()) ;
+				}else {
+					numerator = 0;
+				}
+				
+				if(editDistance.getCorrectChar() == ' ') {
+					denominator = SpellingErrorCorrector.unigramCounts.containsKey(editDistance.getWrongChar()) ?
+							SpellingErrorCorrector.unigramCounts.get(editDistance.getWrongChar()) : 0;
+				}else {
+					bigram = "" + editDistance.getCorrectChar() + editDistance.getWrongChar();
+					denominator = SpellingErrorCorrector.bigramCounts.containsKey(bigram) ? 
+							SpellingErrorCorrector.bigramCounts.get(bigram) : 0;
+				}
+				
+				P = (denominator + numerator) == 0 ? 0 : pw * ((numerator +1) / (denominator + numerator));
+				if(P >= maxP) {
+					maxP = P;
+					predictedWordWithSmoothing = knownWord;
+				}
+				break;
+				
+			case insertion:
+				if(
+						SpellingErrorCorrector.insertionConfusionMatrix.containsKey(editDistance.getCorrectChar()) 
+						&& 
+						SpellingErrorCorrector.insertionConfusionMatrix.get(editDistance.getCorrectChar()).containsKey(editDistance.getWrongChar())
+					) {
+					numerator = SpellingErrorCorrector.insertionConfusionMatrix.get(editDistance.getCorrectChar()).get(editDistance.getWrongChar()) ;
+				}else {
+					numerator = 0;
+				}
+				denominator = SpellingErrorCorrector.unigramCounts.containsKey(editDistance.getCorrectChar()) ?
+						SpellingErrorCorrector.unigramCounts.get(editDistance.getCorrectChar()) : 0;
+						
+				P = (denominator + numerator) == 0 ? 0 : pw * ((numerator +1 )/ (denominator + numerator));
+				if(P >= maxP) {
+					maxP = P;
+					predictedWordWithSmoothing = knownWord;
+				}
+				break;
+				
+			case replacement:
+				if(
+						SpellingErrorCorrector.replacementConfusionMatrix.containsKey(editDistance.getCorrectChar()) 
+						&& 
+						SpellingErrorCorrector.replacementConfusionMatrix.get(editDistance.getCorrectChar()).containsKey(editDistance.getWrongChar())
+					) {
+					numerator = SpellingErrorCorrector.replacementConfusionMatrix.get(editDistance.getCorrectChar()).get(editDistance.getWrongChar());
+				}else {
+					numerator = 0;
+				}
+				denominator = SpellingErrorCorrector.unigramCounts.containsKey(editDistance.getCorrectChar()) ?
+						SpellingErrorCorrector.unigramCounts.get(editDistance.getCorrectChar())  : 0;
+						
+				P = (denominator + numerator) == 0 ? 0 : pw * ((numerator+1) / (denominator + numerator));
+				if(P >= maxP) {
+					maxP = P;
+					predictedWordWithSmoothing = knownWord;
+				}
+				break;
+				
+			case transposition:
+				if(
+						SpellingErrorCorrector.transpositionConfusionMatrix.containsKey(editDistance.getCorrectChar()) 
+						&& 
+						SpellingErrorCorrector.transpositionConfusionMatrix.get(editDistance.getCorrectChar()).containsKey(editDistance.getWrongChar())
+					) {
+					numerator = SpellingErrorCorrector.transpositionConfusionMatrix.get(editDistance.getCorrectChar()).get(editDistance.getWrongChar()) ;
+				}else {
+					numerator = 0;
+				}
+				
+				
+				bigram = "" + editDistance.getCorrectChar() + editDistance.getWrongChar();
+				denominator = SpellingErrorCorrector.bigramCounts.containsKey(bigram) ? 
+						SpellingErrorCorrector.bigramCounts.get(bigram) : 0;
+				
+				
+				P = (denominator + numerator) == 0 ? 0 : pw * ((numerator +1 )/ (denominator + numerator ));
+				if(P >= maxP) {
+					maxP = P;
+					predictedWordWithSmoothing = knownWord;
+				}
+				
+				break;
+			}
+			
+			//System.out.println(knownWord + " - " + wrongWord + "\n" + editDistance.getType() + "\n" + editDistance.getCorrectChar() + " - " + editDistance.getWrongChar());
+			//System.out.println("--------------------");
+			
+		}
+		
+		return predictedWordWithSmoothing;
+	}
+
 }

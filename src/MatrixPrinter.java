@@ -28,12 +28,12 @@ public class MatrixPrinter {
 			
 		}
 		System.out.println();
-		
+		for(int i = 0; i < 26; i++) {
 			
-			Character rowChar = ' ';
+			Character rowChar = (char)(i+97);
 			if(SpellingErrorCorrector.insertionConfusionMatrix.containsKey(rowChar)) {
 				System.out.println();
-				System.out.print("Empty:");
+				System.out.print(rowChar);
 				for(int j = 0; j < 26; j++) {
 					
 					Character colChar = (char)(j + 97);
@@ -45,14 +45,51 @@ public class MatrixPrinter {
 					}
 				}
 				System.out.println();
+			}else {
+				System.out.println();
+				System.out.print(rowChar);
+				for(int j = 0; j < 26; j++) {
+					
+					
+						System.out.print("\t0");
+					
+				}
+				System.out.println();
 			}
+		}
 		
 		
 	}
 	
 	static void printDeletionConfusionMatrix() {
-		SpellingErrorCorrector.deletionConfusionMatrix.get('a').entrySet().stream().forEach(printColumnTitles);
-		SpellingErrorCorrector.deletionConfusionMatrix.entrySet().stream().forEach(printConfusionMatrix);
+		
+		for(int i = 0; i < 26; i++) {
+			System.out.print("\t" + (char)(i + 97));
+			
+		}
+		System.out.println();
+		for(int i = 0; i < 26; i++) {
+			
+			Character rowChar = (char)(i+97);
+			if(SpellingErrorCorrector.deletionConfusionMatrix.containsKey(rowChar)) {
+				System.out.println();
+				System.out.print(rowChar);
+				for(int j = 0; j < 26; j++) {
+					
+					Character colChar = (char)(j + 97);
+					
+					if(SpellingErrorCorrector.deletionConfusionMatrix.get(rowChar).containsKey(colChar)) {
+						System.out.print("\t" + SpellingErrorCorrector.deletionConfusionMatrix.get(rowChar).get(colChar));
+					}else {
+						System.out.print("\t0");
+					}
+				}
+				System.out.println();
+			}
+		}
+		
+		//SpellingErrorCorrector.deletionConfusionMatrix.get('a').entrySet().stream().forEach(printColumnTitles);
+		//SpellingErrorCorrector.deletionConfusionMatrix.entrySet().stream().forEach(printConfusionMatrix);
 	}
 	
 	static void printReplacementConfusionMatrix() {
@@ -104,6 +141,17 @@ public class MatrixPrinter {
 					}else {
 						System.out.print("\t0");
 					}
+				}
+				System.out.println();
+			}
+			else {
+				System.out.println();
+				System.out.print(rowChar);
+				for(int j = 0; j < 26; j++) {
+					
+					
+						System.out.print("\t0");
+					
 				}
 				System.out.println();
 			}

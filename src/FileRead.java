@@ -1,4 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -88,9 +91,9 @@ public class FileRead {
 		}
 	}
 	
-	static void readInputFile() {
+	static void readInputFile( String filePath ) {
 		try {
-			Scanner scanner = new Scanner(new File("test-words-misspelled.txt"));
+			Scanner scanner = new Scanner(new File(filePath));
 			String wrongWord;
 			while(scanner.hasNextLine()) {
 				wrongWord = scanner.nextLine().trim();
@@ -101,11 +104,19 @@ public class FileRead {
 				List<String> knownWords = Utils.filterUnknownWords(edits1);
 				
 				
-				if(knownWords.size() == 0) SpellingErrorCorrector.output.add("");
-				else if ( knownWords.size() == 1) SpellingErrorCorrector.output.add(knownWords.get(0));
+				if(knownWords.size() == 0) {
+					SpellingErrorCorrector.output.add("");
+					SpellingErrorCorrector.outputWithSmoothing.add("");
+				}
+				else if ( knownWords.size() == 1) {
+					SpellingErrorCorrector.output.add(knownWords.get(0));
+					SpellingErrorCorrector.outputWithSmoothing.add(knownWords.get(0));
+				}
 				else {
-					String predictedWord = Utils.bestPrediction(wrongWord, knownWords);
+				    String predictedWord = Utils.bestPrediction(wrongWord, knownWords);
+					String predictedWordWithSmoothing = Utils.bestPredictionWithSmoothing(wrongWord, knownWords);
 					SpellingErrorCorrector.output.add(predictedWord);
+					SpellingErrorCorrector.outputWithSmoothing.add(predictedWordWithSmoothing);
 				}
 			}
 			
@@ -114,21 +125,53 @@ public class FileRead {
 			e.printStackTrace();
 		}
 	}
+	
+	static void printOutput() {
+	     
+	    try {
+	    	BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+		    
+	    	for(String line : SpellingErrorCorrector.output) {
+	    		writer.write(line);
+		    	writer.newLine();
+	    	}
+		    
+		    writer.close();
+		    System.out.println("output.txt file has been created.");
+	    }catch(IOException e) {
+	    	e.printStackTrace();
+	    }
+		
+		
+	}
 
+	
 	static void readCorrectOutput() {
 		try {
 			Scanner scanner = new Scanner(new File("test-words-correct.txt"));
 			String correct;
 			int count = 0;
+			double hitCount = 0;
+			double hitCountForSmoothing = 0;
 			while(scanner.hasNextLine()) {
 				correct = scanner.nextLine().trim();
 				
-				if(!correct.equals(SpellingErrorCorrector.output.get(count))) {
-					System.out.println(correct + " - " + SpellingErrorCorrector.output.get(count) + " - " + (count+1));
+				if(correct.equals(SpellingErrorCorrector.output.get(count))) {
+					hitCount++;
 				}
+				
+				if(correct.equals(SpellingErrorCorrector.outputWithSmoothing.get(count))) {
+					hitCountForSmoothing++;
+				}
+
+				
 				count ++;
 			}
+			double ratio = (double) hitCount / count;
+			double ratioForSmoothing = (double) hitCountForSmoothing / count;
 			
+			System.out.println("Accuracy: " + ratio);
+			System.out.println("Accuracy with smoothing: " + ratioForSmoothing);
 		
 		}catch(Exception e) {
 			e.printStackTrace();

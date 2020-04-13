@@ -7,7 +7,7 @@ Implementation of an isolated word spelling error corrector based on the noisy c
 
 - You can compile the project with the command below:
 
-$ javac *java
+  $ javac *java
 
 ------------------------------------
 
@@ -17,5 +17,5 @@ $ javac *java
 
 - You can run the project with the command below:
 
-$ java SpellingErrorCorrector <input-file.txt>
+  $ java SpellingErrorCorrector <input-file.txt>
 

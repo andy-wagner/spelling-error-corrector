@@ -16,5 +16,6 @@ $ javac *java
 ------------------------------------
 
 - You can run the project with the command below:
+
 $ java SpellingErrorCorrector <input-file.txt>
 
